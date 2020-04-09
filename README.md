@@ -1,7 +1,3 @@
-
-
-
-
 ## Get Started
 
 > 本套发布cicd工具链应用于kubernetes服务发布，通过jenkins的pipeline，使用jenkinfile和argocd实现了对业务服务的打包、镜像制作推送和部署。借助于jenkins参数化功能，将项目信息选择和填写入参数后执行既可生成一个部署链。
@@ -29,16 +25,14 @@
 
 #### 仓库信息
 
-- Helm chart: `git@git.xxxxxx.net:devops/helm-charts-template.git`
-- Jenkins初始化pipeline：`git@git.xxxxxx.net:devops/pipeline.git`
-- Jenkins share library: `git.xxxxxx.net:devops/jenkins-pipeline-shared-library.git`
+- Helm chart: `https://github.com/wayne-beep/helm-chart-template.git`
 
 #### 1.  创建初始化jenkins job
 
 jenkins创建统一pipeline类型初始化job（有必要为初始化job新建view。job名称，例：devops-init-jenkinsjob），使用`pipeline script from SCM` 模式的Git项配置初始化pipeline仓库地址
 
 - SCM：Git
-  - Repository URL：`git@git.xxxxxx.net:devops/pipeline.git`
+  - Repository URL：`git@github.com:wayne-beep/pipeline.git`
   - Branch Specifier ：*/master
   - Credentials可统一使用id(例如)：devops
 
@@ -54,7 +48,7 @@ jenkins > Manage Jenkins > Configure System > Global Pipeline Libraries 中配�
 - Default version： master
 - Retrieval method：选择Modern SCM
 - Source Code Management：选择Git
-  - Project Repository：`git@git.xxxxxx.net:devops/jenkins-pipeline-shared-library.git`
+  - Project Repository：`git@github.com:wayne-beep/pipeline.git`
 
 参数解释：
 
@@ -208,11 +202,8 @@ argocd通过helm chart进行部署，在`git@git.xxxxxx.net:devops/helm-charts-t
 
 ### 1. 命名规范
 
-- 部门命名：遵守wiki中的部门命名，每个部门都有唯一的识别名称。应用于argocd project、jenkins view等
-
-> https://wiki.xxxxxx.net/pages/viewpage.action?pageId=9274861
-
 - namespace：kubernetes命名空间。命名规范 [部门]-[环境]
+
 - application：argocd应用实例，是真正可以部署项目到k8s的资源。命名规范  [部门]-[集群代号]-[环境]-[功能]
 
 注意：功能命名是需要创建应用者（一般是运维工程师）手动填写的，具有对项目的唯一标识的名称，在同一个部门内，不允许有不同的服务使用相同的功能名称（目前还没有做校验，后续完善），该名称的制定，需要运维可研发共同完成。
