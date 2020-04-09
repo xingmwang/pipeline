@@ -118,7 +118,11 @@ argocd app create ${ArgoAppName} \
 
 发布job流水线是由初始化job生成的，用于执行ci过程的job
 
-##### 2.1. checkout 代码
+##### 2.1. 从数据库调取项目信息备用
+
+jenkinsfile共享库方法执行接口调用，以jenkins job名称为key从数据库中取得项目所有信息存储为json格式，该步骤在最开始执行，后续各个stage需要的信息全部从json中取得。
+
+##### 2.2. checkout 代码
 
 ```shell
 checkout([$class: 'GitSCM',
@@ -152,18 +156,18 @@ checkout([$class: 'GitSCM',
 - depth结合shallow 使git只拉取最近一层的提交，有些项目可能由于人为操作不利，上传了较大的文件，如果不使用该参数会将所以版本历史全部拉取，导致拉取时间过长。
 - SubmoduleOption 子模块支持，有些项目带有子模块，用该功能可以拉取
 
-##### 2.2. 生成Dockerfile
+##### 2.3. 生成Dockerfile
 
 做为部署到k8s中的应用，需要把服务构建产物做成docker image后被使用，那么就需要通过Dockerfile将代码编译后的产物打到Docker镜像里。针对不同类型的项目，使用不同的Dockerfile模板，根据传入的信息修改其中的关键参数生成一个临时Dockerfile到代码的根路径或者是模块内（根据项目是多模块还是无模块）。该功能包含在共享库中，Dockerfile的模板存在于共享库的resources/dockerfiles目录中便于调用。修改模板封装了Groovy的GStringTemplateEngine（流式处理文件）方法在共享库的src/org/file目录中。
 
-##### 2.3. 执行编译和镜像打包推送
+##### 2.4. 执行编译和镜像打包推送
 
 拉取代码后，会根据项目类型来执行对应的编译方式，常见的有maven，npm，cnpm。该功能包含在共享库中，在jenkinsfile中调用。编译完成后执行docker buid打包镜像，镜像仓库使用harbor，每个部门使用一个目录，名称为Department参数传入的部门名称，镜像名称使用git仓库的名称或者是模块名（根据项目是否有模块）（镜像名称将调整为application的名称），tag号的组成为[jenkins构建号]-[7位commitid ]，加入jenkins构建号是为了保证每次发版都会更新kubernetes部署，需求场景如下:
 
 - 用户仅仅是想重启服务
 - 用户引用第三方包，第三方包代码更新但是内部代码没有更新，此时git仓库没有新的commit
 
-##### 2.4. argocd执行部署
+##### 2.5. argocd执行部署
 
 在上一步新的镜像tag制作完成后，通过argocd客户端，设置目标application的image tag为刚刚打包的tag，然后执行sync操作将最新的修改同步到kubernetes中来更新deployment，deployment通过rollingupdate的方式发布重启pod。
 
@@ -196,7 +200,7 @@ Jenkins的共享库解决了Jenkinsfile代码复杂、冗余、不便于批量�
 
 #### 4. 共享helm chart模板
 
-argocd通过helm chart进行部署，在`git@git.xxxxxx.net:devops/helm-charts-template.git`仓库中，包含 java go node 等目录，分别用于不同语言的通用模板，Jenkinsfile会根据填入的参数，装载对应的项目目录中的values.yaml文件生成一个新的唯一识别项目名称的values文件，argocd在创建app的时候需要指定git仓库的目录以及配置文件。
+argocd通过helm chart进行部署，在`https://github.com/wayne-beep/helm-chart-template.git`仓库中，包含 java go node 等目录，分别用于不同语言的通用模板，Jenkinsfile会根据填入的参数，装载对应的项目目录中的values.yaml文件生成一个新的唯一识别项目名称的values文件，argocd在创建app的时候需要指定git仓库的目录以及配置文件。
 
 ## 命名规范
 
