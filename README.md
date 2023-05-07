@@ -25,14 +25,14 @@
 
 #### 仓库信息
 
-- Helm chart: `https://github.com/wayne-beep/helm-chart-template.git`
+- Helm chart: `https://github.com/xingmwang/helm-chart-template.git`
 
 #### 1.  创建初始化jenkins job
 
 jenkins创建统一pipeline类型初始化job（有必要为初始化job新建view。job名称，例：devops-init-jenkinsjob），使用`pipeline script from SCM` 模式的Git项配置初始化pipeline仓库地址
 
 - SCM：Git
-  - Repository URL：`git@github.com:wayne-beep/pipeline.git`
+  - Repository URL：`git@github.com:xingmwang/pipeline.git`
   - Branch Specifier ：*/master
   - Credentials可统一使用id(例如)：devops
 
@@ -48,7 +48,7 @@ jenkins > Manage Jenkins > Configure System > Global Pipeline Libraries 中配�
 - Default version： master
 - Retrieval method：选择Modern SCM
 - Source Code Management：选择Git
-  - Project Repository：`git@github.com:wayne-beep/pipeline.git`
+  - Project Repository：`git@github.com:xingmwang/pipeline.git`
 
 参数解释：
 
@@ -200,7 +200,7 @@ Jenkins的共享库解决了Jenkinsfile代码复杂、冗余、不便于批量�
 
 #### 4. 共享helm chart模板
 
-argocd通过helm chart进行部署，在`https://github.com/wayne-beep/helm-chart-template.git`仓库中，包含 java go node 等目录，分别用于不同语言的通用模板，Jenkinsfile会根据填入的参数，装载对应的项目目录中的values.yaml文件生成一个新的唯一识别项目名称的values文件，argocd在创建app的时候需要指定git仓库的目录以及配置文件。
+argocd通过helm chart进行部署，在`https://github.com/xingmwang/helm-chart-template.git`仓库中，包含 java go node 等目录，分别用于不同语言的通用模板，Jenkinsfile会根据填入的参数，装载对应的项目目录中的values.yaml文件生成一个新的唯一识别项目名称的values文件，argocd在创建app的时候需要指定git仓库的目录以及配置文件。
 
 ## 命名规范
 
